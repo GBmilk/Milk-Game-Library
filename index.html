@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>牛奶游戏库</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #0b0e17;
+      --bg-secondary: #131729;
+      --bg-card: #1a1f35;
+      --bg-card-hover: #222845;
+      --accent: #6c5ce7;
+      --accent-light: #a29bfe;
+      --accent-glow: rgba(108, 92, 231, 0.35);
+      --text-primary: #eef0ff;
+      --text-secondary: #8b8fa8;
+      --text-muted: #5a5e78;
+      --border: rgba(255,255,255,0.06);
+      --badge-gold: linear-gradient(135deg, #f7971e, #ffd200);
+      --danger: #ff6b6b;
+      --success: #51cf66;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.45);
+      --header-bg: rgba(11,14,23,0.82);
+      --hover-bg: rgba(255,255,255,0.04);
+      --hover-bg-strong: rgba(255,255,255,0.08);
+      --disabled-text: #555;
+      --disabled-border: #333;
+      --modal-close-bg: rgba(0,0,0,0.5);
+    }
+    body.light {
+      --bg-primary: #f0f2f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8f9fc;
+      --text-primary: #1a1a2e;
+      --text-secondary: #555770;
+      --text-muted: #888ca8;
+      --border: rgba(0,0,0,0.08);
+      --shadow: 0 8px 32px rgba(0,0,0,0.1);
+      --header-bg: rgba(255,255,255,0.88);
+      --hover-bg: rgba(0,0,0,0.03);
+      --hover-bg-strong: rgba(0,0,0,0.06);
+      --disabled-text: #bbb;
+      --disabled-border: #ddd;
+      --modal-close-bg: rgba(0,0,0,0.35);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(ellipse at 20% 20%, rgba(108,92,231,0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 80%, rgba(99,185,255,0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 68px;
+      background: var(--header-bg);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .logo-img {
+      height: 54px; width: auto;
+      object-fit: contain;
+    }
+    .logo-text {
+      font-size: 20px; font-weight: 700;
+      background: linear-gradient(135deg, #fff 30%, var(--accent-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+    }
+    .header-nav { display: flex; gap: 6px; }
+    .nav-btn {
+      padding: 8px 22px; border-radius: 20px;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      border: 1.5px solid transparent;
+      background: transparent; color: var(--text-secondary);
+      transition: all .25s;
+    }
+    .nav-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+    .nav-btn.active {
+      background: var(--accent); color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+    .header-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .icon-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 18px; border-radius: 20px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      background: var(--hover-bg); border: 1px solid var(--border);
+      color: var(--text-secondary); transition: all .25s;
+    }
+    .icon-btn:hover { background: var(--hover-bg-strong); color: var(--text-primary); }
+    .icon-btn.active-fav { background: rgba(255,107,107,0.12); color: var(--danger); border-color: rgba(255,107,107,0.3); }
+    .icon-btn svg { width: 16px; height: 16px; }
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 16px; height: 38px; border-radius: 20px;
+      background: var(--hover-bg); border: 1px solid var(--border);
+      transition: all .25s;
+    }
+    .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .search-box svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+    .search-box input {
+      border: none; outline: none; background: transparent;
+      color: var(--text-primary); font-size: 13px; width: 140px;
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+
+    /* ===== MAIN ===== */
+    .main { position: relative; z-index: 1; padding: 32px 40px 60px; max-width: 1440px; margin: 0 auto; }
+    .section-title {
+      font-size: 22px; font-weight: 700; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title span { color: var(--accent-light); font-size: 14px; font-weight: 400; }
+
+    /* ===== GRID ===== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: transform .3s, box-shadow .3s, border-color .3s;
+      cursor: default;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 48px rgba(108,92,231,0.18);
+      border-color: rgba(108,92,231,0.25);
+    }
+    .card-img-wrap {
+      position: relative; width: 100%;
+      padding-top: 65%; /* ~70% ratio */
+      overflow: hidden; background: var(--bg-secondary);
+    }
+    .card-img-wrap img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .45s;
+    }
+    .card:hover .card-img-wrap img { transform: scale(1.07); }
+    .badge {
+      position: absolute; top: 12px; left: 12px;
+      padding: 4px 12px; border-radius: 6px;
+      font-size: 11px; font-weight: 700; color: #1a1a1a;
+      background: var(--badge-gold);
+      box-shadow: 0 2px 10px rgba(247,151,30,0.35);
+      z-index: 2; letter-spacing: 0.5px;
+    }
+    .card-info { padding: 16px; display: flex; flex-direction: column; gap: 12px; color: var(--text-primary); }
+    .card-name {
+      font-size: 15px; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-actions { display: flex; gap: 10px; }
+    .btn {
+      flex: 1; padding: 9px 0; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: none; transition: all .25s; display: flex;
+      align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-detail {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 2px 12px var(--accent-glow);
+    }
+    .btn-detail:hover { background: #7c6ef7; box-shadow: 0 4px 20px var(--accent-glow); }
+    .btn-fav {
+      background: rgba(255,255,255,0.05); color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-fav:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+    .btn-fav.faved { background: rgba(255,107,107,0.12); color: var(--danger); border-color: rgba(255,107,107,0.3); }
+    .btn svg { width: 14px; height: 14px; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty {
+      grid-column: 1 / -1; text-align: center; padding: 80px 20px;
+      color: var(--text-muted);
+    }
+    .empty svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: .4; }
+    .empty p { font-size: 15px; }
+
+    /* ===== MODAL OVERLAY ===== */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: auto; }
+    .modal {
+      width: 520px; max-width: 94vw; max-height: 90vh;
+      background: var(--bg-secondary);
+      border-radius: 18px; border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex; flex-direction: column; overflow: hidden;
+      transform: translateY(30px) scale(0.97);
+      transition: transform .35s;
+    }
+    .modal-overlay.show .modal { transform: translateY(0) scale(1); }
+    /* 上方图片区：固定高度约 30% of modal */
+    .modal-img-side {
+      width: 100%; height: 220px; flex-shrink: 0;
+      background: var(--bg-card); position: relative; overflow: hidden;
+    }
+    .modal-img-side img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    /* 下方信息区：剩余 70% 可滚动 */
+    .modal-detail-side {
+      flex: 1; padding: 24px 28px 28px;
+      display: flex; flex-direction: column; gap: 14px;
+      overflow-y: auto;
+    }
+    .modal-close {
+      position: absolute; top: 12px; right: 12px; z-index: 10;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--modal-close-bg); border: none; cursor: pointer;
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.7); }
+    .modal-close svg { width: 18px; height: 18px; }
+    .modal-name {
+      font-size: 26px; font-weight: 800; line-height: 1.2;
+      text-align: center; margin-top: 2px;
+    }
+    .modal-type-badge {
+      display: inline-block; padding: 4px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 600; width: fit-content;
+      align-self: center;
+      background: rgba(108,92,231,0.15); color: var(--accent-light);
+      border: 1px solid rgba(108,92,231,0.25);
+    }
+    .modal-desc {
+      font-size: 14px; line-height: 1.7; color: var(--text-secondary);
+    }
+    .modal-size {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 14px; color: var(--text-muted);
+    }
+    .modal-size svg { width: 16px; height: 16px; }
+    .modal-divider { height: 1px; background: var(--border); margin: 4px 0; }
+    .modal-download-label { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    .modal-downloads { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .dl-btn {
+      padding: 10px 20px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.04);
+      color: var(--text-primary); transition: all .25s;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .dl-btn:hover:not(.disabled) { background: var(--hover-bg-strong); border-color: var(--accent); }
+    .dl-btn.disabled {
+      opacity: 0.45; cursor: not-allowed;
+      color: var(--disabled-text); border-color: var(--disabled-border);
+    }
+    .dl-btn svg { width: 16px; height: 16px; }
+    .btn-video {
+      margin-top: 4px; padding: 12px 0; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      border: none; width: 100%;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: #fff; box-shadow: 0 4px 20px var(--accent-glow);
+      transition: all .25s; display: flex; align-items: center;
+      justify-content: center; gap: 8px; text-decoration: none;
+    }
+    .btn-video:hover { box-shadow: 0 6px 28px rgba(108,92,231,0.5); transform: translateY(-1px); }
+    .btn-video svg { width: 18px; height: 18px; }
+
+    /* ===== TOAST ===== */
+    .toast-wrap {
+      position: fixed; bottom: 32px; right: 32px; z-index: 999;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast {
+      padding: 12px 22px; border-radius: 10px;
+      font-size: 13px; font-weight: 500;
+      background: var(--bg-card); border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      animation: toastIn .35s ease, toastOut .35s ease 2s forwards;
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+    .menu-toggle {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-primary); padding: 6px;
+    }
+    .menu-toggle svg { width: 24px; height: 24px; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 860px) {
+      .header {
+        flex-wrap: wrap; padding: 0 16px;
+        height: auto; min-height: 56px;
+        gap: 10px; padding-top: 10px; padding-bottom: 10px;
+      }
+      .header-left { order: 1; }
+      .menu-toggle { display: block; order: 2; margin-left: auto; }
+      .header-right { order: 3; }
+      .header-right .icon-btn span { display: none; }
+      .header-right .icon-btn { padding: 8px 12px; }
+      .search-box { order: 4; flex: 1 1 100%; }
+      .search-box input { width: 100%; }
+      .header-nav {
+        order: 5; flex: 1 1 100%;
+        max-height: 0; overflow: hidden;
+        flex-direction: column; gap: 4px;
+        transition: max-height .3s ease, margin .3s ease;
+        margin-top: 0;
+      }
+      .header-nav.open { max-height: 200px; margin-top: 8px; }
+      .nav-btn { text-align: center; width: 100%; }
+      .main { padding: 20px 16px 48px; }
+      .grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+      .section-title { font-size: 18px; margin-bottom: 16px; }
+      .modal {
+        width: 100%; max-width: 100%;
+        max-height: 100vh; height: 100vh;
+        border-radius: 0;
+      }
+      .modal-img-side { height: 180px; }
+      .modal-detail-side {
+        padding: 18px 16px 24px; flex: 1;
+        overflow-y: auto; -webkit-overflow-scrolling: touch;
+      }
+      .modal-name { font-size: 22px; }
+      .toast-wrap { bottom: 20px; right: 16px; left: 16px; }
+      .toast { text-align: center; }
+    }
+    @media (max-width: 380px) {
+      .grid { grid-template-columns: 1fr; gap: 14px; }
+      .modal-downloads { flex-direction: column; }
+      .dl-btn { justify-content: center; }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <img class="logo-img" src="assets/images.png" alt="Logo" onerror="this.style.background='linear-gradient(135deg,#6c5ce7,#a29bfe)';this.style.height='36px';this.alt='🥛';">
+    <button class="menu-toggle" id="menuToggle" aria-label="菜单">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <nav class="header-nav">
+    <button class="nav-btn active" data-filter="all">全部游戏</button>
+    <button class="nav-btn" data-filter="pc">🖥️ 电脑游戏</button>
+    <button class="nav-btn" data-filter="mobile">📱 手机游戏</button>
+  </nav>
+  <div class="header-right">
+    <button class="icon-btn" id="themeToggle" title="切换亮暗色">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button class="icon-btn" id="favToggle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span>我的收藏</span>
+    </button>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="搜索游戏...">
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="section-title" id="sectionTitle">全部游戏 <span id="gameCount"></span></div>
+  <div class="grid" id="gameGrid"></div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent">
+    <div class="modal-img-side">
+      <img id="modalImg" src="" alt="">
+    </div>
+    <div class="modal-detail-side">
+      <button class="modal-close" id="modalClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-name" id="modalName"></div>
+      <div class="modal-type-badge" id="modalType"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-size" id="modalSize">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span></span>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-download-label">下载方式</div>
+      <div class="modal-downloads" id="modalDownloads"></div>
+      <a class="btn-video" id="modalVideo" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        前往视频
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+(function() {
+  /* ===== STATE ===== */
+  let allGames = [];
+  let favorites = JSON.parse(localStorage.getItem('milk_favorites') || '[]');
+  let currentFilter = 'all';
+  let showFavOnly = false;
+  let searchQuery = '';
+
+  /* ===== DOM REFS ===== */
+  const grid = document.getElementById('gameGrid');
+  const gameCount = document.getElementById('gameCount');
+  const sectionTitle = document.getElementById('sectionTitle');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const toastWrap = document.getElementById('toastWrap');
+  const searchInput = document.getElementById('searchInput');
+  const favToggle = document.getElementById('favToggle');
+
+  /* ===== LOAD DATA ===== */
+  fetch('games.json')
+    .then(r => r.json())
+    .then(data => {
+      allGames = data.map((g, i) => ({ ...g, _id: i }));
+      render();
+    })
+    .catch(() => {
+      grid.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><p>无法加载 games.json，请检查文件是否存在</p></div>';
+    });
+
+  /* ===== RENDER ===== */
+  function render() {
+    let filtered = allGames;
+    if (currentFilter !== 'all') filtered = filtered.filter(g => g.type === currentFilter);
+    if (showFavOnly) filtered = filtered.filter(g => favorites.includes(g.name));
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(g => g.name.toLowerCase().includes(q) || g.description.toLowerCase().includes(q));
+    }
+
+    gameCount.textContent = `共 ${filtered.length} 款`;
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg><p>没有找到匹配的游戏</p></div>';
+      return;
+    }
+
+    grid.innerHTML = filtered.map(g => {
+      const isFav = favorites.includes(g.name);
+      return `
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="${g.images}" alt="${g.name}" loading="lazy" onerror="this.style.opacity='0.3'">
+            <div class="badge">精选</div>
+          </div>
+          <div class="card-info">
+            <div class="card-name">${g.name}</div>
+            <div class="card-actions">
+              <button class="btn btn-detail" onclick="window._showDetail(${g._id})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                详情
+              </button>
+              <button class="btn btn-fav ${isFav ? 'faved' : ''}" onclick="window._toggleFav('${esc(g.name)}')">
+                <svg viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                ${isFav ? '已收藏' : '收藏'}
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function esc(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+  /* ===== MODAL ===== */
+  window._showDetail = function(id) {
+    const g = allGames.find(x => x._id === id);
+    if (!g) return;
+    document.getElementById('modalImg').src = g.images;
+    document.getElementById('modalName').textContent = g.name;
+    document.getElementById('modalType').textContent = g.type === 'pc' ? '🖥️ 电脑游戏' : '📱 手机游戏';
+    document.getElementById('modalDesc').textContent = g.description;
+    document.getElementById('modalSize').querySelector('span').textContent = '占用大小：' + g.size;
+
+    const dlContainer = document.getElementById('modalDownloads');
+    const dlLinks = [
+      { key: 'quark', label: '夸克网盘', color: '#4a90d9' },
+      { key: 'xunlei', label: '迅雷网盘', color: '#00a8ff' },
+      { key: 'baidu', label: '百度网盘', color: '#2196f3' },
+    ];
+    dlContainer.innerHTML = dlLinks.map(d => {
+      const hasLink = g[d.key] && g[d.key] !== null && g[d.key].toLowerCase() !== 'null';
+      if (hasLink) {
+        return `<a class="dl-btn" href="${g[d.key]}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          ${d.label}
+        </a>`;
+      }
+      return `<span class="dl-btn disabled">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        ${d.label}(暂无)
+      </span>`;
+    }).join('');
+
+    const videoBtn = document.getElementById('modalVideo');
+    videoBtn.href = g.media || '#';
+    videoBtn.style.display = g.media ? '' : 'none';
+
+    modalOverlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  };
+
+  function closeModal() {
+    modalOverlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* ===== FAVORITES ===== */
+  window._toggleFav = function(name) {
+    const idx = favorites.indexOf(name);
+    if (idx > -1) {
+      favorites.splice(idx, 1);
+      showToast('已取消收藏');
+    } else {
+      favorites.push(name);
+      showToast('已添加到收藏 ❤️');
+    }
+    localStorage.setItem('milk_favorites', JSON.stringify(favorites));
+    render();
+  };
+
+  /* ===== NAV FILTER ===== */
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const headerNav = document.querySelector('.header-nav');
+  const menuToggle = document.getElementById('menuToggle');
+  const menuIconOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+  const menuIconClose = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  menuToggle.addEventListener('click', () => {
+    headerNav.classList.toggle('open');
+    menuToggle.innerHTML = headerNav.classList.contains('open') ? menuIconClose : menuIconOpen;
+  });
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      const labels = { all: '全部游戏', pc: '电脑游戏', mobile: '手机游戏' };
+      sectionTitle.firstChild.textContent = labels[currentFilter] + ' ';
+      render();
+      headerNav.classList.remove('open');
+      menuToggle.innerHTML = menuIconOpen;
+    });
+  });
+
+  /* ===== FAV TOGGLE ===== */
+  favToggle.addEventListener('click', () => {
+    showFavOnly = !showFavOnly;
+    favToggle.classList.toggle('active-fav', showFavOnly);
+    render();
+  });
+
+  /* ===== SEARCH ===== */
+  let searchTimer;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuery = searchInput.value.trim();
+      render();
+    }, 250);
+  });
+
+  /* ===== THEME TOGGLE ===== */
+  const themeToggle = document.getElementById('themeToggle');
+  const savedTheme = localStorage.getItem('milk_theme');
+  if (savedTheme === 'light') document.body.classList.add('light');
+  function updateThemeIcon() {
+    const isLight = document.body.classList.contains('light');
+    themeToggle.innerHTML = isLight
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  }
+  updateThemeIcon();
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('light');
+    localStorage.setItem('milk_theme', document.body.classList.contains('light') ? 'light' : 'dark');
+    updateThemeIcon();
+  });
+
+  /* ===== TOAST ===== */
+  function showToast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    toastWrap.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+})();
+</script>
+</body>
+</html>
