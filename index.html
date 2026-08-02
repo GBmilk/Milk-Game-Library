@@ -284,6 +284,69 @@
       color: var(--disabled-text); border-color: var(--disabled-border);
     }
     .dl-btn svg { width: 16px; height: 16px; }
+
+    /* ===== QR CODE MODAL ===== */
+    .qr-overlay {
+      position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+    }
+    .qr-overlay.show { opacity: 1; pointer-events: auto; }
+    .qr-box {
+      width: 340px; max-width: 90vw;
+      background: var(--bg-secondary);
+      border-radius: 20px; border: 1px solid var(--border);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+      padding: 28px 24px 24px;
+      display: flex; flex-direction: column; align-items: center; gap: 18px;
+      position: relative;
+      transform: translateY(24px) scale(0.96);
+      transition: transform .3s;
+    }
+    .qr-overlay.show .qr-box { transform: translateY(0) scale(1); }
+    .qr-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--hover-bg-strong); border: none; cursor: pointer;
+      color: var(--text-secondary);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, color .2s;
+    }
+    .qr-close:hover { background: var(--accent); color: #fff; }
+    .qr-close svg { width: 16px; height: 16px; }
+    .qr-title {
+      font-size: 20px; font-weight: 800;
+      color: var(--text-primary); text-align: center;
+    }
+    .qr-title-badge {
+      display: none;
+    }
+    .qr-img-wrap {
+      width: 200px; height: 200px;
+      background: #fff; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .qr-img-wrap img { width: 100%; height: 100%; object-fit: contain; }
+    .qr-hint {
+      font-size: 13px; line-height: 1.6; color: var(--text-secondary);
+      text-align: center; max-width: 260px;
+    }
+    .qr-hint strong { color: var(--accent-light); }
+    .qr-open-btn {
+      width: 100%; padding: 11px 0; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+      background: var(--accent); color: #fff;
+      box-shadow: 0 2px 12px var(--accent-glow);
+      transition: all .25s; display: flex; align-items: center;
+      justify-content: center; gap: 6px; text-decoration: none;
+    }
+    .qr-open-btn:hover { background: #7c6ef7; }
+    .qr-open-btn svg { width: 14px; height: 14px; }
     .btn-video {
       margin-top: 4px; padding: 12px 0; border-radius: var(--radius-sm);
       font-size: 14px; font-weight: 700; cursor: pointer;
@@ -435,6 +498,29 @@
   </div>
 </div>
 
+<!-- QR CODE MODAL -->
+<div class="qr-overlay" id="qrOverlay">
+  <div class="qr-box">
+    <button class="qr-close" id="qrClose">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="qr-title">
+      <span id="qrPanName"></span>
+      <span class="qr-title-badge">扫码下载</span>
+    </div>
+    <div class="qr-img-wrap">
+      <img id="qrImg" src="" alt="二维码">
+    </div>
+    <div class="qr-hint">
+      请使用手机打开对应<strong id="qrAppName"></strong>扫描二维码下载
+    </div>
+    <a class="qr-open-btn" id="qrDirectLink" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      打开链接
+    </a>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast-wrap" id="toastWrap"></div>
 
@@ -457,7 +543,7 @@
   const favToggle = document.getElementById('favToggle');
 
   /* ===== LOAD DATA ===== */
-  fetch('games.json')
+  fetch('games.json?v=' + Date.now())
     .then(r => r.json())
     .then(data => {
       allGames = data.map((g, i) => ({ ...g, _id: i }));
@@ -522,17 +608,17 @@
 
     const dlContainer = document.getElementById('modalDownloads');
     const dlLinks = [
-      { key: 'quark', label: '夸克网盘', color: '#4a90d9' },
-      { key: 'xunlei', label: '迅雷网盘', color: '#00a8ff' },
-      { key: 'baidu', label: '百度网盘', color: '#2196f3' },
+      { key: 'quark', label: '夸克网盘', app: '夸克App' },
+      { key: 'xunlei', label: '迅雷网盘', app: '迅雷App' },
+      { key: 'baidu', label: '百度网盘', app: '百度网盘App' },
     ];
     dlContainer.innerHTML = dlLinks.map(d => {
       const hasLink = g[d.key] && g[d.key] !== null && g[d.key].toLowerCase() !== 'null';
       if (hasLink) {
-        return `<a class="dl-btn" href="${g[d.key]}" target="_blank" rel="noopener">
+        return `<button class="dl-btn" onclick="window._showQR('${esc(d.label)}', '${esc(g[d.key])}', '${esc(d.app)}')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           ${d.label}
-        </a>`;
+        </button>`;
       }
       return `<span class="dl-btn disabled">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -554,7 +640,6 @@
   }
   document.getElementById('modalClose').addEventListener('click', closeModal);
   modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   /* ===== FAVORITES ===== */
   window._toggleFav = function(name) {
@@ -625,6 +710,35 @@
     document.body.classList.toggle('light');
     localStorage.setItem('milk_theme', document.body.classList.contains('light') ? 'light' : 'dark');
     updateThemeIcon();
+  });
+
+  /* ===== QR CODE MODAL ===== */
+  const qrOverlay = document.getElementById('qrOverlay');
+  // 检测是否为手机端（触摸设备或窄屏）
+  const isMobile = () => ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth <= 860;
+  // 使用 qrserver.com API 动态生成二维码（纯前端，无需后端）
+  window._showQR = function(label, url, app) {
+    // 手机端直接跳转，无需扫码
+    if (isMobile()) {
+      window.open(url, '_blank', 'noopener');
+      return;
+    }
+    const qrSize = 180;
+    const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&margin=0`;
+    document.getElementById('qrImg').src = qrApi;
+    document.getElementById('qrPanName').textContent = label;
+    document.getElementById('qrAppName').textContent = app;
+    document.getElementById('qrDirectLink').href = url;
+    qrOverlay.classList.add('show');
+  };
+  function closeQR() { qrOverlay.classList.remove('show'); }
+  document.getElementById('qrClose').addEventListener('click', closeQR);
+  qrOverlay.addEventListener('click', e => { if (e.target === qrOverlay) closeQR(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (qrOverlay.classList.contains('show')) { closeQR(); }
+      else { closeModal(); }
+    }
   });
 
   /* ===== TOAST ===== */
