@@ -1,101 +1,13 @@
 [
   {
-    "name": "赛博朋克2077",
+    "name": "木筏求生",
     "type": "pc",
-    "description": "一款开放世界动作冒险RPG游戏，故事发生在夜之城，一个充满权力更迭和身体改造的大都会。你将扮演一名雇佣兵，在充满危险的世界中探索。",
-    "size": "70 GB",
+    "description": "《木筏求生》是一款海洋生存冒险游戏。玩家将扮演一名漂流在木筏上的幸存者，仅靠一只塑料钩子，在广阔无垠的大海上收集漂浮的碎片、木板和物资。",
+    "size": "7 GB",
     "media": "https://www.bilibili.com/video/BV1example1",
-    "quark": "https://pan.quark.cn/s/example1",
-    "xunlei": "https://pan.xunlei.com/s/example1",
-    "baidu": "https://pan.baidu.com/s/example1",
-    "images": "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/header.jpg"
-  },
-  {
-    "name": "荒野大镖客2",
-    "type": "pc",
-    "description": "美国，1899年。亚瑟·摩根和范德林德帮众是一群亡命之徒。随着联邦侦探的追捕，他们必须在广袤的美国土地上抢劫、战斗和求生。",
-    "size": "120 GB",
-    "media": "https://www.bilibili.com/video/BV1example2",
-    "quark": "https://pan.quark.cn/s/example2",
-    "xunlei": null,
-    "baidu": null,
-    "images": "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/header.jpg"
-  },
-  {
-    "name": "艾尔登法环",
-    "type": "pc",
-    "description": "由FromSoftware开发，宫崎英高与乔治·R·R·马丁联手打造的奇幻动作RPG。探索广袤的交界地，挑战无数强敌。",
-    "size": "50 GB",
-    "media": "https://www.bilibili.com/video/BV1example3",
-    "quark": "https://pan.quark.cn/s/example3",
-    "xunlei": "https://pan.xunlei.com/s/example3",
-    "baidu": "https://pan.baidu.com/s/example3",
-    "images": "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/header.jpg"
-  },
-  {
-    "name": "黑神话：悟空",
-    "type": "pc",
-    "description": "一款以中国神话为背景的动作冒险游戏，取材于中国古典名著《西游记》。你将扮演一位天命人，踏上一条充满危险与惊奇的西游之路。",
-    "size": "130 GB",
-    "media": "https://www.bilibili.com/video/BV1example4",
-    "quark": "https://pan.quark.cn/s/example4",
-    "xunlei": "https://pan.xunlei.com/s/example4",
-    "baidu": "https://pan.baidu.com/s/example4",
-    "images": "https://cdn.cloudflare.steamstatic.com/steam/apps/2358720/header.jpg"
-  },
-  {
-    "name": "原神",
-    "type": "mobile",
-    "description": "米哈游自研的一款开放世界冒险游戏，你可以在广阔的世界中自由探索，结识性格各异的同伴，一起踏上寻找七神之眼的旅程。",
-    "size": "20 GB",
-    "media": "https://www.bilibili.com/video/BV1example5",
-    "quark": null,
-    "xunlei": null,
-    "baidu": "https://pan.baidu.com/s/example5",
-    "images": "https://upload-os-bbs.mihoyo.com/upload/2020/11/11/73562572/4e8b3a54c91f.png"
-  },
-  {
-    "name": "王者荣耀",
-    "type": "mobile",
-    "description": "腾讯天美工作室开发的一款MOBA类手机游戏，5v5公平竞技，海量英雄随心选择，精妙操作一展身手。",
-    "size": "4 GB",
-    "media": "https://www.bilibili.com/video/BV1example6",
-    "quark": "https://pan.quark.cn/s/example6",
-    "xunlei": "https://pan.xunlei.com/s/example6",
-    "baidu": "https://pan.baidu.com/s/example6",
-    "images": "https://cdn.jsdelivr.net/gh/example/wzry-cover.jpg"
-  },
-  {
-    "name": "崩坏：星穹铁道",
-    "type": "mobile",
-    "description": "米哈游全新银河冒险策略游戏。乘坐星穹列车，穿越银河万象，与伙伴们一同探索宇宙的奥秘。",
-    "size": "15 GB",
-    "media": "https://www.bilibili.com/video/BV1example7",
-    "quark": "https://pan.quark.cn/s/example7",
-    "xunlei": "https://pan.xunlei.com/s/example7",
-    "baidu": "https://pan.baidu.com/s/example7",
-    "images": "https://upload-os-bbs.mihoyo.com/upload/2023/04/20/73562572/star-rail-cover.jpg"
-  },
-  {
-    "name": "侠盗猎车手V",
-    "type": "pc",
-    "description": "Rockstar Games出品的一款开放世界动作冒险游戏，故事发生在以洛杉矶为原型的洛圣都，三位主角的命运交织在一起。",
-    "size": "95 GB",
-    "media": "https://www.bilibili.com/video/BV1example8",
-    "quark": "https://pan.quark.cn/s/example8",
-    "xunlei": "https://pan.xunlei.com/s/example8",
-    "baidu": "https://pan.baidu.com/s/example8",
-    "images": "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/header.jpg"
-  },
-  {
-    "name": "侠盗猎车手:圣安地列斯",
-    "type": "pc",
-    "description": "Rockstar Games出品的一款开放世界动作冒险游戏，故事发生在以洛杉矶为原型的洛圣都，主角的命运交织在一起。",
-    "size": "4 GB",
-    "media": "https://www.bilibili.com/video/BV1uzYZzmEWe?vd_source=ff02cbac1b5f274234155d994d17538a",
-    "quark": "https://pan.quark.cn/s/94074e91cc8b",
-    "xunlei": "https://pan.xunlei.com/s/example8",
-    "baidu": "https://pan.baidu.com/s/example8",
-    "images": "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/header.jpg"
+    "quark": "https://pan.quark.cn/s/44e6c7b7a8f8",
+    "xunlei": "https://pan.xunlei.com/s/VOz9i0i5FJQ1kuaYEPHMIulkA1?pwd=ty38#",
+    "baidu": "https://pan.baidu.com/s/1GUt4mGpspUCRbB07m9AmZQ?pwd=gsph",
+    "images": "assets/images/png/raft.png"
   }
 ]
