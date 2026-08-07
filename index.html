@@ -19,6 +19,7 @@
       --text-muted: #5a5e78;
       --border: rgba(255,255,255,0.06);
       --badge-gold: linear-gradient(135deg, #f7971e, #ffd200);
+      --badge-dual: linear-gradient(135deg, #00b894, #00cec9);
       --danger: #ff6b6b;
       --success: #51cf66;
       --radius: 14px;
@@ -168,10 +169,18 @@
     .badge {
       position: absolute; top: 12px; left: 12px;
       padding: 4px 12px; border-radius: 6px;
-      font-size: 11px; font-weight: 700; color: #1a1a1a;
-      background: var(--badge-gold);
-      box-shadow: 0 2px 10px rgba(247,151,30,0.35);
+      font-size: 11px; font-weight: 700; color: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
       z-index: 2; letter-spacing: 0.5px;
+    }
+    .badge-featured {
+      background: var(--badge-gold);
+      color: #1a1a1a;
+      box-shadow: 0 2px 10px rgba(247,151,30,0.35);
+    }
+    .badge-dual {
+      background: var(--badge-dual);
+      box-shadow: 0 2px 10px rgba(0,206,201,0.35);
     }
     .card-info { padding: 16px; display: flex; flex-direction: column; gap: 12px; color: var(--text-primary); }
     .card-name {
@@ -226,7 +235,6 @@
       transition: transform .35s;
     }
     .modal-overlay.show .modal { transform: translateY(0) scale(1); }
-    /* 上方图片区：固定高度约 30% of modal */
     .modal-img-side {
       width: 100%; height: 220px; flex-shrink: 0;
       background: var(--bg-card); position: relative; overflow: hidden;
@@ -234,7 +242,6 @@
     .modal-img-side img {
       width: 100%; height: 100%; object-fit: cover;
     }
-    /* 下方信息区：剩余 70% 可滚动 */
     .modal-detail-side {
       flex: 1; padding: 24px 28px 28px;
       display: flex; flex-direction: column; gap: 14px;
@@ -259,6 +266,10 @@
       align-self: center;
       background: rgba(108,92,231,0.15); color: var(--accent-light);
       border: 1px solid rgba(108,92,231,0.25);
+    }
+    .modal-type-badge.dual {
+      background: rgba(0,206,201,0.15); color: #00cec9;
+      border-color: rgba(0,206,201,0.3);
     }
     .modal-desc {
       font-size: 14px; line-height: 1.7; color: var(--text-secondary);
@@ -533,6 +544,20 @@
   const searchInput = document.getElementById('searchInput');
   const favToggle = document.getElementById('favToggle');
 
+  /* ===== 判断游戏是否匹配当前筛选 ===== */
+  function matchesFilter(game, filter) {
+    if (filter === 'all') return true;
+    if (filter === 'pc') {
+      // 电脑游戏分类：type为pc，或者pm为true（双端）
+      return game.type === 'pc' || game.pm === true;
+    }
+    if (filter === 'mobile') {
+      // 手机游戏分类：type为mobile，或者pm为true（双端）
+      return game.type === 'mobile' || game.pm === true;
+    }
+    return true;
+  }
+
   /* ===== LOAD DATA ===== */
   fetch('games.json?v=' + Date.now())
     .then(r => r.json())
@@ -547,7 +572,8 @@
   /* ===== RENDER ===== */
   function render() {
     let filtered = allGames;
-    if (currentFilter !== 'all') filtered = filtered.filter(g => g.type === currentFilter);
+    // 使用新的匹配函数
+    filtered = filtered.filter(g => matchesFilter(g, currentFilter));
     if (showFavOnly) filtered = filtered.filter(g => favorites.includes(g.name));
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -562,11 +588,16 @@
 
     grid.innerHTML = filtered.map(g => {
       const isFav = favorites.includes(g.name);
+      const isDual = g.pm === true;
+      // 徽章逻辑：如果双端显示双端标签，否则显示"精选"
+      const badgeHtml = isDual
+        ? `<div class="badge badge-dual">双端支持</div>`
+        : `<div class="badge badge-featured">精选</div>`;
       return `
         <div class="card">
           <div class="card-img-wrap">
             <img src="${g.images}" alt="${g.name}" loading="lazy" onerror="this.style.opacity='0.3'">
-            <div class="badge">精选</div>
+            ${badgeHtml}
           </div>
           <div class="card-info">
             <div class="card-name">${g.name}</div>
@@ -593,7 +624,18 @@
     if (!g) return;
     document.getElementById('modalImg').src = g.images;
     document.getElementById('modalName').textContent = g.name;
-    document.getElementById('modalType').textContent = g.type === 'pc' ? '🖥️ 电脑游戏' : '📱 手机游戏';
+
+    // 类型标签：显示双端支持信息
+    const typeBadge = document.getElementById('modalType');
+    const isDual = g.pm === true;
+    if (isDual) {
+      typeBadge.textContent = '双端支持';
+      typeBadge.className = 'modal-type-badge dual';
+    } else {
+      typeBadge.textContent = g.type === 'pc' ? '🖥️ 电脑游戏' : '📱 手机游戏';
+      typeBadge.className = 'modal-type-badge';
+    }
+
     document.getElementById('modalDesc').textContent = g.description;
     document.getElementById('modalSize').querySelector('span').textContent = '占用大小：' + g.size;
 
@@ -705,11 +747,8 @@
 
   /* ===== QR CODE MODAL ===== */
   const qrOverlay = document.getElementById('qrOverlay');
-  // 检测是否为手机端（触摸设备或窄屏）
   const isMobile = () => ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth <= 860;
-  // 使用 qrserver.com API 动态生成二维码（纯前端，无需后端）
   window._showQR = function(label, url, app) {
-    // 手机端直接跳转，无需扫码
     if (isMobile()) {
       window.open(url, '_blank', 'noopener');
       return;
